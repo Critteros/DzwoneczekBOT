@@ -4,11 +4,45 @@ Managing global-wide app configuration
 
 # Library includes
 from enum import Enum
+from pathlib import Path
+import json
 
 # import logging
 # logging.DEBUG
 
 # Configuration holders
+_app_configuration: dict = {}
+_default_configuration: dict = {}
+
+# Constants
+_DEFAULT_CONFIG_PATH = 'app/default_config.json'
+
+
+def _load_default_config() -> dict:
+    file_object = Path(_DEFAULT_CONFIG_PATH)
+
+    assert file_object.exists()
+
+    with file_object.open(mode='rt') as file:
+        try:
+            json_data = json.load(file)
+        except json.JSONDecodeError as exc:
+            raise JsonDecodeError(file_object.name) from exc
+
+    print(file_object.name)
+
+    return json_data
+
+
+class JsonDecodeError(Exception):
+    """
+    Exception raised when trying to decode invalid JSON file
+
+    """
+
+    def __init__(self, filename: str):
+        message = f'Invalid json: {filename}'
+        super().__init__(message)
 
 
 class Config:
@@ -30,6 +64,22 @@ class Config:
         command_prefix      [char]
 
     """
+
+    attributes: list = [
+        'log_to_console',
+        'log_to_file',
+        'log_library',
+        'console_log_level',
+        'file_log_level',
+        'library_log_level',
+        'console_logger_type',
+        'library_logging_type',
+        'command_prefix'
+    ]
+
+    def __init__(self, configuration: dict) -> None:
+        pass
+
     log_to_console: bool
     log_to_file: bool
     log_library: bool
