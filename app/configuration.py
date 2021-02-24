@@ -24,54 +24,113 @@ class Config:
         log_to_console  [true/false]
         log_to_file     [true/false]
         log_library     [true/false]
+        console_use_color  [true/false]
 
         console_log_level [DEBUG/INFO/WARNING/ERROR/CRITICAL]
         file_log_level    [DEBUG/INFO/WARNING/ERROR/CRITICAL]
         library_log_level [DEBUG/INFO/WARNING/ERROR/CRITICAL]
 
-        console_use_color  [true/false]
+
         library_logging_type [CONSOLE/FILE]
 
         command_prefix      [char]
 
     """
 
-    attributes: list = [
-        'log_to_console',
-        'log_to_file',
-        'log_library',
-        'console_log_level',
-        'file_log_level',
-        'library_log_level',
-        'console_use_color',
-        'library_logging_type',
-        'command_prefix'
-    ]
-
     def __init__(self, configuration: dict) -> None:
+        """
+        Initializises the config instance
 
+        Args:
+            configuration (dict): Configuration as dicitonary
+        """
+
+        # log_to_console -
+        #   bool [true/false] None if out of bounds or not found
+        self.log_to_console: bool = configuration.get('log_to_console', None)
+
+        # log_to_file -
+        #   bool [true/false] None if out of bounds or not found
+        self.log_to_file: bool = configuration.get('log_to_file', None)
+
+        # log_library - bool [true/false] None if out of bounds or not found
+        self.log_library: bool = configuration.get('log_library', None)
+
+        # console_use_color - bool [true/false] None if out of bounds or not found
+        self.console_use_color: bool = configuration.get(
+            'console_use_color', None)
+
+        # console_log_level -
+        #   enum [DEBUG/INFO/WARNING/ERROR/CRITICAL] None if out of bounds or not found
         try:
-            self.log_to_console: bool = configuration['log_to_console']
-            self.log_to_file: bool = configuration['log_to_file']
-            self.log_library: bool = configuration['log_library']
-
             self.console_log_level: int = LoggingLevels[configuration['console_log_level']].value
-            self.file_log_level: int = LoggingLevels[configuration['file_log_level']].value
-            self.library_log_level: int = LoggingLevels[configuration['library_log_level']].value
+        except KeyError:
+            self.console_log_level: int = None
 
-            self.console_use_color: bool = configuration['console_use_color']
+        # file_log_level -
+        #   enum [DEBUG/INFO/WARNING/ERROR/CRITICAL] None if out of bounds or not found
+        try:
+            self.file_log_level: int = LoggingLevels[configuration['file_log_level']].value
+        except KeyError:
+            self.file_log_level: int = None
+
+        # library_log_level -
+        #   enum [DEBUG/INFO/WARNING/ERROR/CRITICAL] None if out of bounds or not found
+        try:
+            self.library_log_level: int = LoggingLevels[configuration['library_log_level']].value
+        except KeyError:
+            self.library_log_level: int = None
+
+        # library_logging_type -
+        #   enum [CONSOLE/FILE] None if out of bounds or not found
+        try:
             self.library_logging_type: int = LogOutputType[
                 configuration['library_logging_type']].value
-
-            self.command_prefix: str = configuration['command_prefix']
-
-        except KeyError as exc:
-            raise ConfigAttributeNotFound from exc
+        except KeyError:
+            self.library_log_level: int = None
 
 
 # Configuration holders
 _app_configuration: Config = None
 _default_configuration: Config = None
+
+
+def load_configuration() -> None:
+    """
+    Loads app configuration and default configuration to global variables and checks them
+    """
+
+    # Loading to dict from JSONs
+    default_conf_dict: dict = _load_default_config()
+    normal_conf_dict: dict = _load_config()
+
+    # Initialization of instances
+    default_config: Config = Config(default_conf_dict)
+    app_config: Config = Config(normal_conf_dict)
+
+    # Check default config
+    for key, value in default_config.__dict__.items():
+        try:
+            assert value is not None
+        except AssertionError as exc:
+            raise InvalidConfigurationValue(key, _DEFAULT_CONFIG_PATH) from exc
+
+    # Check user-defined configuration
+    for key, value in app_config.__dict__.items():
+        try:
+            assert value is not None
+        except AssertionError as exc:
+            default_entry = getattr(default_config, key)
+            print(
+                'Config entry {} is missing or invalid, changing to default value {}'.format(
+                    key, default_entry
+                )
+            )
+            setattr(app_config, key, default_entry)
+
+    # Bind configuration to globals
+    globals()['_app_configuration'] = app_config
+    globals()['_default_configuration'] = default_config
 
 
 def _load_config() -> dict:
@@ -135,16 +194,15 @@ def _load_default_config() -> dict:
     return json_data
 
 
-class ConfigAttributeNotFound(Exception):
+class InvalidConfigurationValue(Exception):
     """
-    Raised when one of the config attribute is not found when creating instance of
-    Config class
+    Raised when app is configured with invalid config entry
 
     """
 
-    def __init__(self):
-        super().__init__(
-            'One of the required config attribute is missing when creating Config instance')
+    def __init__(self, cause: str, context: str):
+        message = f'Given value for configuration entry {cause} was invalid in {context}'
+        super().__init__(message)
 
 
 class DefaultConfigNotFound(Exception):
@@ -197,4 +255,7 @@ class LoggingLevels(Enum):
     NOTSET = 0
 
 
-# print(Config(_load_default_config()).__dict__)
+# load_configuration()
+# # print(Config(_load_config()).__dict__)
+# print(_app_configuration.__dict__)
+# print(LoggingLevels(40).name)
