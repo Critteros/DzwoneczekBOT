@@ -10,39 +10,10 @@ import json
 # import logging
 # logging.DEBUG
 
-# Configuration holders
-_app_configuration: dict = {}
-_default_configuration: dict = {}
 
 # Constants
 _DEFAULT_CONFIG_PATH = 'app/default_config.json'
-
-
-def _load_default_config() -> dict:
-    file_object = Path(_DEFAULT_CONFIG_PATH)
-
-    assert file_object.exists()
-
-    with file_object.open(mode='rt') as file:
-        try:
-            json_data = json.load(file)
-        except json.JSONDecodeError as exc:
-            raise JsonDecodeError(file_object.name) from exc
-
-    print(file_object.name)
-
-    return json_data
-
-
-class JsonDecodeError(Exception):
-    """
-    Exception raised when trying to decode invalid JSON file
-
-    """
-
-    def __init__(self, filename: str):
-        message = f'Invalid json: {filename}'
-        super().__init__(message)
+_CONFIG_PATH = 'config.json'
 
 
 class Config:
@@ -58,7 +29,7 @@ class Config:
         file_log_level    [DEBUG/INFO/WARNING/ERROR/CRITICAL]
         library_log_level [DEBUG/INFO/WARNING/ERROR/CRITICAL]
 
-        console_logger_type  [COLOR/NORMAL]
+        console_use_color  [true/false]
         library_logging_type [CONSOLE/FILE]
 
         command_prefix      [char]
@@ -72,45 +43,141 @@ class Config:
         'console_log_level',
         'file_log_level',
         'library_log_level',
-        'console_logger_type',
+        'console_use_color',
         'library_logging_type',
         'command_prefix'
     ]
 
     def __init__(self, configuration: dict) -> None:
-        pass
 
-    log_to_console: bool
-    log_to_file: bool
-    log_library: bool
+        try:
+            self.log_to_console: bool = configuration['log_to_console']
+            self.log_to_file: bool = configuration['log_to_file']
+            self.log_library: bool = configuration['log_library']
 
-    console_log_level: int
-    file_log_level: int
-    library_log_level: int
+            self.console_log_level: int = LoggingLevels[configuration['console_log_level']].value
+            self.file_log_level: int = LoggingLevels[configuration['file_log_level']].value
+            self.library_log_level: int = LoggingLevels[configuration['library_log_level']].value
 
-    console_logger_type: int
-    library_logging_type: int
+            self.console_use_color: bool = configuration['console_use_color']
+            self.library_logging_type: int = LogOutputType[
+                configuration['library_logging_type']].value
 
-    command_prefix: str
+            self.command_prefix: str = configuration['command_prefix']
+
+        except KeyError as exc:
+            raise ConfigAttributeNotFound from exc
 
 
-class ConsoleOutputType(Enum):
+# Configuration holders
+_app_configuration: Config = None
+_default_configuration: Config = None
+
+
+def _load_config() -> dict:
+    """
+    Loads app configuration from 'config.json' file and returns it as a python dicitonary
+    if the file is not found then it is created from a default config file. Raises error when
+    json parser couldn't parse the file
+
+    Raises:
+        JsonDecodeError: Raised when JSON parser coudn't parse the file
+
+    Returns:
+        dict: The config as a python dictionary
+    """
+    file_object = Path(_CONFIG_PATH)
+
+    # What to do if config does not exists
+    if not file_object.exists():
+        file_object.touch()
+        json_data: dict = _load_default_config()
+
+        # Creates config from default config
+        with file_object.open('wt', encoding='utf-8') as file:
+            json.dump(json_data, file, indent=4)
+
+        return json_data
+
+    with file_object.open('rt', encoding='utf-8') as file:
+        try:
+            json_data = json.load(file)
+        except json.JSONDecodeError as exc:
+            raise JsonDecodeError(file_object.name) from exc
+
+    return json_data
+
+
+def _load_default_config() -> dict:
+    """
+    Loads default config file from disk to a python dictionary
+
+    Raises:
+        JsonDecodeError: Raised when JSON parser couldn't parse the JSON
+        DefaultConfigNotFound: Raised when the default config is missing
+
+    Returns:
+        dict: Configuration as python dictionary
+    """
+    file_object = Path(_DEFAULT_CONFIG_PATH)
+
+    try:
+        assert file_object.exists()
+    except AssertionError as exc:
+        raise DefaultConfigNotFound(file_object.resolve()) from exc
+
+    with file_object.open(mode='rt', encoding='utf-8') as file:
+        try:
+            json_data = json.load(file)
+        except json.JSONDecodeError as exc:
+            raise JsonDecodeError(file_object.name) from exc
+
+    return json_data
+
+
+class ConfigAttributeNotFound(Exception):
+    """
+    Raised when one of the config attribute is not found when creating instance of
+    Config class
+
+    """
+
+    def __init__(self):
+        super().__init__(
+            'One of the required config attribute is missing when creating Config instance')
+
+
+class DefaultConfigNotFound(Exception):
+    """
+    Raised when Default Configuration file is not found
+
+    """
+
+    def __init__(self, filepath: str):
+        message = f'Default config should be at {filepath} but was not found!'
+        super().__init__(message)
+
+
+class JsonDecodeError(Exception):
+    """
+    Exception raised when trying to decode invalid JSON file
+
+    Attributes:
+        filename - name of file in which JSON threw exception when decoding
+    """
+
+    def __init__(self, filename: str):
+        message = f'Invalid json: {filename}'
+        super().__init__(message)
+
+
+class LogOutputType(Enum):
     """
     Enum that represents diffrent methods of writing log messages either to stdout in console
     or to use a file
     """
     CONSOLE = 0
     FILE = 1
-
-
-class ConsoleFormattingType(Enum):
-    """
-    Enum that represents methods of printing to color in nice color format or to just use
-    plan white text. Converts string representationof state to integer state
-
-    """
-    NORMAL = 0
-    COLOR = 1
 
 
 class LoggingLevels(Enum):
@@ -128,3 +195,6 @@ class LoggingLevels(Enum):
     INFO = 20
     DEBUG = 10
     NOTSET = 0
+
+
+# print(Config(_load_default_config()).__dict__)

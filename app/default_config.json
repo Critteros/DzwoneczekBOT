@@ -1,17 +1,11 @@
 {
-    
     "log_to_console": true,
     "log_to_file": false,
     "log_library": false,
-
-
     "console_log_level": "ERROR",
     "file_log_level": "ERROR",
     "library_log_level": "ERROR",
-
-
-    "console_logger_type": "normal",
-    "library_logging_type": "file",
-    
-    "command_prefix" : "?"
+    "console_use_color": false,
+    "library_logging_type": "FILE",
+    "command_prefix": "?"
 }
