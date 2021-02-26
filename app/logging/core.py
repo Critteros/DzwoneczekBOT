@@ -45,6 +45,87 @@ level_style: dict = {
 datefmt: str = '%Y-%m-%d %H:%M:%S'
 
 
+class LogContainer:
+    """
+    Continer for custom defined Logger that will used rules defined in app
+    configuration.
+    This logger follows formatting of main application
+
+    Args:
+        name (str): logger name
+        level (int, optional): logging level (defaults to logging.INFO)
+    """
+
+    def __init__(self, *, name, level=logging.INFO) -> None:
+
+        # Get app configuration
+        self.app_config = configuration.get_config()
+
+        self.active_loggers = []
+
+        if self.app_config.log_to_file:
+            instance_name: str = name + '-file'
+            logger_instance = _init_file(name=instance_name, level=level)
+            self.active_loggers.append(logger_instance)
+
+        if self.app_config.log_to_console:
+            instance_name: str = name + '-console'
+            logger_instance = _init_console(
+                name=instance_name, level=level,
+                use_color=self.app_config.console_use_color)
+            self.active_loggers.append(logger_instance)
+
+    def debug(self, *args, **kwargs):
+        """
+        Print debug message
+        """
+        # Assert that there are available loggers
+        assert self.active_loggers
+
+        for logger in self.active_loggers:
+            logger.debug(*args, **kwargs)
+
+    def info(self, *args, **kwargs):
+        """
+        Print info message
+        """
+        # Assert that there are available loggers
+        assert self.active_loggers
+
+        for logger in self.active_loggers:
+            logger.info(*args, **kwargs)
+
+    def warning(self, *args, **kwargs):
+        """
+        Print warning message
+        """
+        # Assert that there are available loggers
+        assert self.active_loggers
+
+        for logger in self.active_loggers:
+            logger.warning(*args, **kwargs)
+
+    def error(self, *args, **kwargs):
+        """
+        Print error message
+        """
+        # Assert that there are available loggers
+        assert self.active_loggers
+
+        for logger in self.active_loggers:
+            logger.error(*args, **kwargs)
+
+    def critical(self, *args, **kwargs):
+        """
+        Print critical message
+        """
+        # Assert that there are available loggers
+        assert self.active_loggers
+
+        for logger in self.active_loggers:
+            logger.critical(*args, **kwargs)
+
+
 class Log:
     """
     Wrapper around logging and coloredlogs modules
@@ -129,6 +210,23 @@ class Log:
             logging.Logger: Logger instance
         """
         return _init_file(name=name, level=level)
+
+    @staticmethod
+    def get_custom(*, name, level=logging.INFO) -> LogContainer:
+        """
+        Returns custom logger that will used rules defined in app
+        configuration.
+        This logger follows formatting of main application
+
+        Args:
+            name (str): logger name
+            level (int, optional): logging level. Defaults to logging.INFO.
+
+        Returns:
+            (app.logging.core.LogContainer): custom logging instance
+        """
+
+        return LogContainer(name=name, level=level)
 
     # Passthrough methods
     ######################################################################

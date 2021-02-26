@@ -18,15 +18,18 @@ def main() -> None:
     # Load bot configuration from jsons
     configuration.load_configuration()
 
+    # Setup Loggers from config
     Log.config_init()
-    Log.debug('Example Debug')
-    Log.info('Example info')
-    Log.warning('Example warning')
-    Log.error('Example error')
-    Log.critical('Example critical')
+    Log.info('Logging is now available')
 
-    quick_logger = Log.get_exclusive_console(name='test')
-    quick_logger.critical('test')
+    # Get the configuration
+    bot_configuration: configuration.Config = configuration.get_config()
+
+    # Listing configuration
+    Log.warning('Listing bot configuration:')
+
+    for key, value in bot_configuration.__dict__.items():
+        Log.warning(f'\t{key}: {value}')
 
 
 if __name__ != '__main__':
