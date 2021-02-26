@@ -95,6 +95,39 @@ _app_configuration: Config = None
 _default_configuration: Config = None
 
 
+def get_default_config() -> Config:
+    """
+    Returns app default configuration. Raises RuntimeError if config is None
+
+    Raises:
+        RuntimeError: Raised if the config is None
+
+    Returns:
+        Config: Instance of Config class with default configuration
+    """
+
+    if _default_configuration is not None:
+        return _default_configuration
+
+    raise RuntimeError('Default config was None')
+
+
+def get_config() -> Config:
+    """
+    Returns app configuration. Raises RuntimeError if config is None
+
+    Raises:
+        RuntimeError: Raised if config is None
+
+    Returns:
+        Config: Instance of Config class with default configuration
+    """
+    if _app_configuration is not None:
+        return _app_configuration
+
+    raise RuntimeError('App configuration was None')
+
+
 def load_configuration() -> None:
     """
     Loads app configuration and default configuration to global variables and checks them
@@ -253,9 +286,3 @@ class LoggingLevels(Enum):
     INFO = 20
     DEBUG = 10
     NOTSET = 0
-
-
-# load_configuration()
-# # print(Config(_load_config()).__dict__)
-# print(_app_configuration.__dict__)
-# print(LoggingLevels(40).name)
