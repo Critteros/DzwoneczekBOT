@@ -1,15 +1,19 @@
+"""
+This module handles complications of dynamic retiriving prefixes for diffrent servers
+It requests server prefix from databes and caches it for optimization
 
+"""
 
 # Library includes
 from firebase_admin import firestore
 
 
+# Library imports for typing hints
+from google.cloud.firestore import Client as FirestoreClient
+from google.cloud.firestore import DocumentReference
+
 # App includes
 from app.logging.core import Log
-
-# Just for typing info
-from google.cloud.firestore import Client as FirestoreClient
-from google.cloud.firestore import DocumentReference, WriteOption
 
 
 # Storage for prefixes
@@ -59,7 +63,7 @@ def get_server_prefix(guild_id: int) -> str:
 
 def set_server_prefix(guild_id: int, prefix: str) -> None:
     """
-    Updates server prefix 
+    Updates server prefix
 
     Args:
         guild_id (int): guild id
