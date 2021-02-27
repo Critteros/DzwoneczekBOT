@@ -81,6 +81,22 @@ class BotClient(commands.Bot):
         await self.login(self.token, bot=True)
         await self.connect(reconnect=True)
 
+    def run(self, *args, **kwargs) -> None:
+        """
+        Activates and runs the event loop
+        This call is blocking and should be last thing that is called
+
+        """
+        Log.warning('Starting up connection to discord API')
+        return super().run(*args, **kwargs)
+
+    async def close(self) -> None:
+        """
+        Cleaning up and closing the event loop
+        """
+        Log.error('Logging out of discord')
+        return await super().close()
+
     @staticmethod
     def get_instance():
         """

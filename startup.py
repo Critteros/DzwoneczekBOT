@@ -3,7 +3,6 @@ This file is the entrypoint of Bot application
 """
 
 # Library includes
-import asyncio
 
 import firebase_admin
 from firebase_admin import credentials
@@ -45,7 +44,9 @@ def main() -> None:
     # Creating bot instance
     Log.warning('Creating BotClient instance')
     client = BotClient()
-    asyncio.get_event_loop().run_until_complete(client.start())
+
+    # Run client
+    client.run()
 
 
 if __name__ != '__main__':

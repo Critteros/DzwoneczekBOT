@@ -179,7 +179,7 @@ class Log:
             Log.active_loggers.append(logger_instance)
 
     @staticmethod
-    def get_exclusive_console(*, name, level=logging.INFO) -> logging.Logger:
+    def get_exclusive_console(name, *, level=logging.INFO) -> logging.Logger:
         """
         Returns exclusive logger with formatting the same as in the main app.
         Independent of Log.info() debug etc. This logger will print to console
@@ -196,7 +196,7 @@ class Log:
         return _init_console(name=name, level=level, use_color=use_color)
 
     @staticmethod
-    def get_exclusive_file(*, name, level=logging.INFO) -> logging.Logger:
+    def get_exclusive_file(name, *, level=logging.INFO) -> logging.Logger:
         """
         Returns exclusive logger with formatting the same as in the main app.
         Independent of Log.info() debug etc. This logger will print to file
@@ -212,7 +212,7 @@ class Log:
         return _init_file(name=name, level=level)
 
     @staticmethod
-    def get_custom(*, name, level=logging.INFO) -> LogContainer:
+    def get_custom(name, *, level=logging.INFO) -> LogContainer:
         """
         Returns custom logger that will used rules defined in app
         configuration.
