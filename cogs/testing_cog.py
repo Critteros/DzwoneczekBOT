@@ -20,7 +20,7 @@ class TestCog(commands.Cog):
     def __init__(self, client: BotClient):
         self.client: BotClient = client
 
-    @commands.command()
+    @commands.command(help='test')
     @commands.guild_only()
     async def echo(self, ctx: commands.Context, *args):
         """

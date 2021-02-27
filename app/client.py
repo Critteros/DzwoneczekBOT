@@ -51,6 +51,7 @@ class BotClient(commands.Bot):
         # Initialize Bot class constructor
         super().__init__(
             command_prefix=_get_prefix,
+            help_command=MyHelp(),
             *args, **kwargs
         )
 
@@ -112,6 +113,24 @@ class BotClient(commands.Bot):
         if BotClient._INSTANCE is None:
             raise RuntimeError('There is no client instance')
         return BotClient._INSTANCE
+
+
+class MyHelp(commands.HelpCommand):
+    def get_command_signature(self, command):
+        return '%s%s %s' % (self.clean_prefix, command.qualified_name, command.help)
+
+    async def send_bot_help(self, mapping):
+        embed = discord.Embed(title="Help")
+        for cog, commands in mapping.items():
+            command_signatures = [
+                self.get_command_signature(c) for c in commands]
+            if command_signatures:
+                cog_name = getattr(cog, "qualified_name", "No Category")
+                embed.add_field(name=cog_name, value="\n".join(
+                    command_signatures), inline=False)
+
+        channel = self.get_destination()
+        await channel.send(embed=embed)
 
 
 def _get_prefix(bot: BotClient, msg: discord.Message):
