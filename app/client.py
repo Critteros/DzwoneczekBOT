@@ -57,15 +57,17 @@ class BotClient(commands.Bot):
         # To-do load cogs
         Log.warning('Loading cogs:')
 
-        path_to_cogs = Path('app/cogs')
+        path_to_cogs = Path('cogs')
 
         for file in path_to_cogs.iterdir():
             file_name: str = file.name
 
             if file_name.endswith('.py'):
-                cog_name: str = f'app.cogs.{file_name[:-3]}'
+                cog_name: str = f'cogs.{file_name[:-3]}'
                 Log.warning(f'\tloading cog: {cog_name}')
                 self.load_extension(cog_name)
+
+        Log.warning('Finished loading cogs')
 
         # Binding instance
         BotClient._INSTANCE = self
@@ -106,9 +108,9 @@ def _get_prefix(bot: BotClient, msg: discord.Message):
     if msg.guild is None:
         prefixes.append('!')
         prefixes.append('?')
-        Log.info('Invoked in private channel')
+        Log.debug('Getting prefix for private DM')
     else:
-        Log.info('Invoked in serwer')
+        Log.debug(f'Getting prefix for server: {msg.guild.name}')
         guild_id: int = msg.guild.id
         custom_prefix: str = get_server_prefix(guild_id)
 

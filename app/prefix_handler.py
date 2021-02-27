@@ -69,6 +69,7 @@ def set_server_prefix(guild_id: int, prefix: str) -> None:
         guild_id (int): guild id
         prefix (str): prefix to be set
     """
+    Log.info(f'Updating server({guild_id}) prefix to {prefix}')
 
     # Retrive Firestore Client
     db_client: FirestoreClient = firestore.client()
