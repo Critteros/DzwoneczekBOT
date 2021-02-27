@@ -18,7 +18,7 @@ from google.cloud.firestore import Client as FirestoreClient
 
 
 # Tests
-from app.prefix_handler import get_server_prefix
+from app.prefix_handler import get_server_prefix, set_server_prefix
 
 
 def main() -> None:
@@ -47,8 +47,10 @@ def main() -> None:
     firebase_admin.initialize_app(credential=cred)
 
     # Just testing
-    test_server_id = 792497879175397456
-    Log.error(f'/{get_server_prefix(test_server_id)}/')
+    # test_server_id = 792497879175397456
+
+    # set_server_prefix(test_server_id, '^')
+    # Log.error(f'/{get_server_prefix(test_server_id)}/')
 
     # db: FirestoreClient = firestore.client()
     # server_stuff = db.collection(f'bot-root/{test_server_id}/server-specific')
@@ -59,7 +61,7 @@ def main() -> None:
     # Log.info(f'prefix is {prefix}')
 
     client = BotClient()
-    # asyncio.get_event_loop().run_until_complete(client.start())
+    asyncio.get_event_loop().run_until_complete(client.start())
 
 
 if __name__ != '__main__':

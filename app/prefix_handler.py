@@ -9,7 +9,7 @@ from app.logging.core import Log
 
 # Just for typing info
 from google.cloud.firestore import Client as FirestoreClient
-from google.cloud.firestore import DocumentReference
+from google.cloud.firestore import DocumentReference, WriteOption
 
 
 # Storage for prefixes
@@ -30,7 +30,7 @@ def get_server_prefix(guild_id: int) -> str:
 
     #################################
 
-    Log.debug('Retriving prefix from firestore')
+    Log.debug(f'Retriving prefix from firestore for server {guild_id}')
     # Retrive firestore client
     db_client: FirestoreClient = firestore.client()
 
@@ -55,3 +55,28 @@ def get_server_prefix(guild_id: int) -> str:
     prefix = server_configuration.get('prefix', '')
     server_prefixes[guild_id] = prefix
     return prefix
+
+
+def set_server_prefix(guild_id: int, prefix: str) -> None:
+    """
+    Updates server prefix 
+
+    Args:
+        guild_id (int): guild id
+        prefix (str): prefix to be set
+    """
+
+    # Retrive Firestore Client
+    db_client: FirestoreClient = firestore.client()
+
+    # Path to server config
+    path_to_server_config: str = f'bot-root/{guild_id}/server-specific/server-config'
+
+    # Update cached prefix
+    server_prefixes[guild_id] = prefix
+
+    # Retrive document pointer
+    doc_ref: DocumentReference = db_client.document(path_to_server_config)
+
+    # Update value
+    doc_ref.set({'prefix': prefix}, merge=True)

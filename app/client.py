@@ -9,6 +9,7 @@ import discord
 
 # App includes
 from app.logging.core import Log
+from app.prefix_handler import set_server_prefix, get_server_prefix
 
 
 class BotClient(commands.Bot):
@@ -68,8 +69,13 @@ def _get_prefix(bot: BotClient, msg: discord.Message):
         prefixes.append('?')
         Log.info('Invoked in private channel')
     else:
-        prefixes.append('!')
-        prefixes.append('?')
         Log.info('Invoked in serwer')
+        guild_id: int = msg.guild.id
+        custom_prefix: str = get_server_prefix(guild_id)
 
-    return prefixes
+        if custom_prefix:
+            prefixes.append(custom_prefix)
+            return prefixes
+        else:
+            prefixes.append('?')
+            return prefixes
