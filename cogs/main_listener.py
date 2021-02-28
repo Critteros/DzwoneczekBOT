@@ -37,6 +37,7 @@ class ListenerCog(commands.Cog):
             ctx (commands.Context): context that invoked error
             error (commands.CommandError): error that was invoked
         """
+        Log.error(f'Command error: "{error}"')
 
         # Check for error caused by DM bot directly with forbitted command
         if isinstance(error, commands.NoPrivateMessage):

@@ -13,7 +13,7 @@ from discord.ext import commands
 # App includes
 
 from app.client import BotClient
-from modules.calendar.calendar_handler import load_guild_latest
+from modules.calendar.calendar_handler import load_guild_latest, next_uid
 
 
 class Calendar(commands.Cog, name='Calendar'):
@@ -43,51 +43,44 @@ class Calendar(commands.Cog, name='Calendar'):
         log = self.log
 
         # Used to communicate in desired channel
-        def talk(*args, **kwargs):
+        async def talk(*args, **kwargs) -> discord.Message:
+            send_message: discord.Message = await context.send(*args, **kwargs)
             message_stack.append(
-                context.send(*args, **kwargs)
+                send_message
             )
+            return send_message
+
+        # Delete messages
+        async def clenup():
+            await asyncio.sleep(10)
+            for message in message_stack:
+                await message.delete()
 
         # Verifies the author replies
-        def check(message: discord.Message):
+
+        def check(message: discord.Message) -> bool:
             is_correct_user: bool = message.author == context.author
             is_correct_channel: bool = message.channel == context.channel
 
             return is_correct_user and is_correct_channel
 
-    @calendar_core.command(name='test', brief='For testing only')
-    async def test(self, context: commands.Context):
-
-        message_stack: List[discord.Message] = [context.message]
-        log = self.log
-
-        message_stack.append(
-            await context.send('Please reply with __description__')
-        )
-
-        def check(message: discord.Message):
-            return (message.author == context.author and message.channel == context.channel)
+        await talk('Please reply with __Description__')
 
         try:
-            reaction: discord.Message = await self.client.wait_for(
-                'message', check=check, timeout=10)
-
-            message_stack.append(reaction)
-            message_stack.append(
-                await context.send(f"Reaction was `{reaction.content}`")
+            user_reaction: discord.Message = await self.client.wait_for(
+                event='message',
+                check=check
             )
+            message_stack.append(user_reaction)
+            await talk(f'Message content is `{user_reaction.content}`')
         except asyncio.TimeoutError:
-            message_stack.append(
-                await context.send('Timed out')
-            )
+            await talk(f'Timed Out!')
+            await clenup()
 
-        await asyncio.sleep(10)
-        for msg in message_stack:
-            await msg.delete()
-
-        # load_guild_latest(context.guild.id)
-        # await asyncio.sleep(3)
-        # await context.send('After 3 seconds')
+    @calendar_core.command(name='test', brief='For testing only')
+    async def test(self, context: commands.Context):
+        for _ in range(10):
+            await context.send(f'ID: {next_uid(context.guild.id)}')
 
 
 def setup(client):
