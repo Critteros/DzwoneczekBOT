@@ -77,6 +77,8 @@ class Calendar(commands.Cog, name='Calendar'):
             await talk(f'Timed Out!')
             await clenup()
 
+        await clenup()
+
     @calendar_core.command(name='test', brief='For testing only')
     async def test(self, context: commands.Context):
         for _ in range(10):
