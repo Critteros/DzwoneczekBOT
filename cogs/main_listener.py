@@ -26,6 +26,7 @@ class ListenerCog(commands.Cog):
         Action that will be invoked when bot logs in into discord
         """
         Log.info('Bot is ready')
+        Log.info(self.client.emojis)
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx: commands.Context, error: commands.CommandError) -> None:

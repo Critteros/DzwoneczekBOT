@@ -9,7 +9,6 @@ from discord.ext import commands
 # App includes
 
 from app.client import BotClient
-from app.logging.core import Log
 
 
 class TestCog(commands.Cog):
@@ -19,9 +18,9 @@ class TestCog(commands.Cog):
 
     def __init__(self, client: BotClient):
         self.client: BotClient = client
+        self.log = client.log
 
-    @commands.command(help='test')
-    @commands.guild_only()
+    @commands.command(help='test', brief='Testing command')
     async def echo(self, ctx: commands.Context, *args):
         """
         Testing fuction designed to print context to logging output
@@ -29,14 +28,15 @@ class TestCog(commands.Cog):
         Args:
             ctx (commands.Context): Context of invocation
         """
+        log = self.log
 
-        Log.debug('Executing echo command')
-        Log.debug(f'Context is: {ctx.__dict__}')
-        Log.debug(f'Context type is {type(ctx)}')
-        Log.debug(f'Context message: {ctx.args}')
+        log.debug('Executing echo command')
+        log.debug(f'Context is: {ctx.__dict__}')
+        log.debug(f'Context type is {type(ctx)}')
+        log.debug(f'Context message: {ctx.args}')
 
-        Log.debug(f'data is: /{args}/\n data type is{type(args)}')
-        await ctx.message.reply("Hi")
+        log.debug(f'data is: /{args}/\n data type is{type(args)}')
+        await ctx.message.reply("Hi <:python:815369954224373760>")
 
 
 def setup(client):

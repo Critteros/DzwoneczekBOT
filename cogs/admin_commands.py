@@ -13,7 +13,7 @@ from app.logging.core import Log
 from app.prefix_handler import set_server_prefix
 
 
-class AdminCommands(commands.Cog):
+class AdminCommands(commands.Cog, name='Admin Commands'):
     """
     Class cog for the admin_commands cog extension
     """
@@ -21,19 +21,17 @@ class AdminCommands(commands.Cog):
     def __init__(self, client: BotClient):
         self.client: BotClient = client
 
-    @commands.group(name='prefix')
+    @commands.group(name='prefix', brief='Manages server prefixes')
+    @commands.has_permissions(administrator=True)
     @commands.guild_only()
     async def prefix_core(self, context: commands.Context):
         """
-        Main handler for the prefix command
-
-        Args:
-            context (commands.Context): context of the invocation
+        M
         """
         if context.invoked_subcommand is None:
             await context.reply('Invalid Subcommand')
 
-    @prefix_core.command(name='set')
+    @prefix_core.command(name='set', brief='Sets server prefix')
     @commands.has_permissions(administrator=True)
     @commands.guild_only()
     async def prefix_change(self, context: commands.Context, new_prefix: str):
@@ -52,7 +50,8 @@ class AdminCommands(commands.Cog):
 
         await context.send(f'Changed server prefix to {new_prefix}')
 
-    @prefix_core.command(name='current')
+    @prefix_core.command(name='current', brief='Prints current server prefix')
+    @commands.has_permissions(administrator=True)
     @commands.guild_only()
     async def prefix_current(self, context: commands.Context):
         """
