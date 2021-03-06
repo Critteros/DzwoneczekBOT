@@ -13,13 +13,17 @@ from app.logging.core import Log
 
 
 def load_guild_latest(guild_id: int):
-    events_ref_string = f'bot-root/{guild_id}/calendar-events'
-    Log.warning('called')
 
+    # Path to reference to callendar-events collection
+    events_ref_string = f'bot-root/{guild_id}/calendar-events'
+
+    # Firestore client
     db_client: FirestoreClient = firestore.client()
 
+    # Collection holding the callendar events
     events_ref = db_client.collection(events_ref_string)
 
+    # Retriving and sorting all callendar events
     query = events_ref.order_by(
         u'time', direction='ASCENDING').stream()
 
@@ -36,11 +40,11 @@ def next_uid(guild_id: int):
     # Random number from 1000 to 9999 inclusive
     rand_number: int = random.randrange(1000, 10000)
 
-    # Check if that number is unique
-    db_client: FirestoreClient = firestore.client()
-
+    # The following part checks if the random id is unique
+    db_client: FirestoreClient = firestore.client()  # The firestore client
+    # String path to events
     path_to_events: str = f'bot-root/{guild_id}/calendar-events'
-    coll_ref = db_client.collection(path_to_events)
+    coll_ref = db_client.collection(path_to_events)  # Collection reference
 
     Log.debug('Accesing firestore to verify uid')
     query = coll_ref.where(u'id', u'==', rand_number).get()
