@@ -39,10 +39,10 @@ class Config:
 
     def __init__(self, configuration: dict) -> None:
         """
-        Initializises the config instance
+        Initializes the config instance
 
         Args:
-            configuration (dict): Configuration as dicitonary
+            configuration (dict): Configuration as dictionary
         """
 
         # log_to_console -
@@ -168,12 +168,12 @@ def load_configuration() -> None:
 
 def _load_config() -> dict:
     """
-    Loads app configuration from 'config.json' file and returns it as a python dicitonary
+    Loads app configuration from 'config.json' file and returns it as a python dictionary
     if the file is not found then it is created from a default config file. Raises error when
     json parser couldn't parse the file
 
     Raises:
-        JsonDecodeError: Raised when JSON parser coudn't parse the file
+        JsonDecodeError: Raised when JSON parser couldn't parse the file
 
     Returns:
         dict: The config as a python dictionary
@@ -264,7 +264,7 @@ class JsonDecodeError(Exception):
 
 class LogOutputType(Enum):
     """
-    Enum that represents diffrent methods of writing log messages either to stdout in console
+    Enum that represents different methods of writing log messages either to stdout in console
     or to use a file
     """
     CONSOLE = 0

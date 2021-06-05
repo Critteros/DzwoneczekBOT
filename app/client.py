@@ -9,9 +9,9 @@ from discord.ext import commands
 import discord
 
 # App includes
-from app.logging.core import Log
-from app.prefix_handler import get_server_prefix
-from app.help_command import MyHelp
+from .logging.core import Log
+from .prefix_handler import get_server_prefix
+from .help_command import MyHelp
 
 
 class BotClient(commands.Bot):
@@ -23,7 +23,7 @@ class BotClient(commands.Bot):
     Raises:
         RuntimeError: When creating more then one instance
         RuntimeError: If discord token file does not exists ".discord."
-        RuntimeError: If accesing get_instance() before creating instance of this class
+        RuntimeError: If accessing get_instance() before creating instance of this class
 
     Returns:
         BotClient: Instance of client class
@@ -32,10 +32,10 @@ class BotClient(commands.Bot):
 
     def __init__(self, *args, **kwargs) -> None:
 
-        # This class is an singleton so there can bo only one instance
+        # This class is an singleton so there can be only one instance
         if BotClient._INSTANCE is not None:
             raise RuntimeError(
-                'Called BotClient constructor when instance arleady existed')
+                'Called BotClient constructor when instance already existed')
 
         # Bind logger
         self.log: Log = Log
@@ -49,7 +49,7 @@ class BotClient(commands.Bot):
         with token_file.open(mode='rt', encoding='utf-8') as file:
             self.token = file.read()
 
-        # Retrive event loop
+        # Retrieve event loop
         self.loop = asyncio.get_event_loop()
 
         # Initialize Bot class constructor
@@ -125,7 +125,7 @@ def _get_prefix(bot: BotClient, msg: discord.Message):
     # Standard prefixes for direct ping @BOTNAME
     prefixes: list = [f'<@!{bot_user_id}> ', f'<@{bot_user_id} ']
 
-    # Check if it is a private chanell
+    # Check if it is a private channel
     if msg.guild is None:
         prefixes.append('!')
         prefixes.append('?')
