@@ -1,5 +1,5 @@
 """
-This module handles complications of dynamic retrieving prefixes for diffrent servers
+This module handles complications of dynamic retrieving prefixes for different servers
 It requests server prefix from database and caches it for optimization
 
 """
