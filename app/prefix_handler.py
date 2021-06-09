@@ -1,6 +1,6 @@
 """
 This module handles complications of dynamic retiriving prefixes for diffrent servers
-It requests server prefix from databes and caches it for optimization
+It requests server prefix from database and caches it for optimization
 
 """
 
